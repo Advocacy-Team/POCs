@@ -1,0 +1,13 @@
+[{
+	"ProductType": "MAT",
+	"BaseUnit": "KG",
+    "IndustrySector": "M",
+       "to_Description": {
+        "results": [
+         {
+            "Language": "EN",
+            "ProductDescription": "Test Material"
+         }
+      ]
+    }
+}]

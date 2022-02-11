@@ -1,0 +1,840 @@
+{
+    "d": {
+        "results": [{
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "MAT_TEST",
+                "ProductType": "MAT",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644278400000)/",
+                "CreatedByUser": "CB9980000013",
+                "LastChangeDate": "/Date(1644278400000)/",
+                "LastChangedByUser": "CB9980000013",
+                "LastChangeDateTime": "/Date(1644339156000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "",
+                "BaseUnit": "KG",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": null,
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST')/to_Valuation"
+                    }
+                }
+            }, {
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "MAT_TEST2",
+                "ProductType": "MAT",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644278400000)/",
+                "CreatedByUser": "CB9980000013",
+                "LastChangeDate": "/Date(1644278400000)/",
+                "LastChangedByUser": "CB9980000013",
+                "LastChangeDateTime": "/Date(1644339306000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "YBFA12",
+                "BaseUnit": "KG",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": null,
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST2')/to_Valuation"
+                    }
+                }
+            }, {
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "MAT_TEST3",
+                "ProductType": "MAT",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644278400000)/",
+                "CreatedByUser": "CB9980000013",
+                "LastChangeDate": "/Date(1644278400000)/",
+                "LastChangedByUser": "CB9980000013",
+                "LastChangeDateTime": "/Date(1644339677000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "KG",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "YBFA12",
+                "BaseUnit": "KG",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": null,
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('MAT_TEST3')/to_Valuation"
+                    }
+                }
+            }, {
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "ZTEST_MAT",
+                "ProductType": "FERT",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644451200000)/",
+                "CreatedByUser": "CB9980000044",
+                "LastChangeDate": "/Date(1644451200000)/",
+                "LastChangedByUser": "CB9980000044",
+                "LastChangeDateTime": "/Date(1644499795000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "",
+                "BaseUnit": "CAN",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "DI",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": null,
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_MAT')/to_Valuation"
+                    }
+                }
+            }, {
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "ZTEST_PRODUCT",
+                "ProductType": "HALB",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644451200000)/",
+                "CreatedByUser": "CB9980000014",
+                "LastChangeDate": "/Date(1644451200000)/",
+                "LastChangedByUser": "CB9980000014",
+                "LastChangeDateTime": "/Date(1644504912000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "",
+                "BaseUnit": "D",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": "/Date(1644451200000)/",
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_PRODUCT')/to_Valuation"
+                    }
+                }
+            }, {
+                "__metadata": {
+                    "id": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')",
+                    "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')",
+                    "type": "API_PRODUCT_SRV.A_ProductType"
+                },
+                "Product": "ZTEST_RAW_MAT",
+                "ProductType": "ROH",
+                "CrossPlantStatus": "",
+                "CrossPlantStatusValidityDate": null,
+                "CreationDate": "/Date(1644451200000)/",
+                "CreatedByUser": "CB9980000044",
+                "LastChangeDate": "/Date(1644451200000)/",
+                "LastChangedByUser": "CB9980000044",
+                "LastChangeDateTime": "/Date(1644496003000+0000)/",
+                "IsMarkedForDeletion": false,
+                "ProductOldID": "",
+                "GrossWeight": "0.000",
+                "PurchaseOrderQuantityUnit": "",
+                "SourceOfSupply": "",
+                "WeightUnit": "KG",
+                "NetWeight": "0.000",
+                "CountryOfOrigin": "",
+                "CompetitorID": "",
+                "ProductGroup": "L002",
+                "BaseUnit": "BAG",
+                "ItemCategoryGroup": "",
+                "ProductHierarchy": "",
+                "Division": "",
+                "VarblPurOrdUnitIsActive": "",
+                "VolumeUnit": "",
+                "MaterialVolume": "0.000",
+                "ANPCode": "0",
+                "Brand": "",
+                "ProcurementRule": "",
+                "ValidityStartDate": null,
+                "LowLevelCode": "",
+                "ProdNoInGenProdInPrepackProd": "",
+                "SerialIdentifierAssgmtProfile": "",
+                "SizeOrDimensionText": "",
+                "IndustryStandardName": "",
+                "ProductStandardID": "",
+                "InternationalArticleNumberCat": "",
+                "ProductIsConfigurable": false,
+                "IsBatchManagementRequired": false,
+                "ExternalProductGroup": "",
+                "CrossPlantConfigurableProduct": "",
+                "SerialNoExplicitnessLevel": "",
+                "ProductManufacturerNumber": "",
+                "ManufacturerNumber": "",
+                "ManufacturerPartProfile": "",
+                "QltyMgmtInProcmtIsActive": false,
+                "IndustrySector": "M",
+                "ChangeNumber": "",
+                "MaterialRevisionLevel": "",
+                "HandlingIndicator": "",
+                "WarehouseProductGroup": "",
+                "WarehouseStorageCondition": "",
+                "StandardHandlingUnitType": "",
+                "SerialNumberProfile": "",
+                "AdjustmentProfile": "",
+                "PreferredUnitOfMeasure": "",
+                "IsPilferable": false,
+                "IsRelevantForHzdsSubstances": false,
+                "QuarantinePeriod": "0",
+                "TimeUnitForQuarantinePeriod": "",
+                "QualityInspectionGroup": "",
+                "AuthorizationGroup": "",
+                "HandlingUnitType": "",
+                "HasVariableTareWeight": false,
+                "MaximumPackagingLength": "0.000",
+                "MaximumPackagingWidth": "0.000",
+                "MaximumPackagingHeight": "0.000",
+                "UnitForMaxPackagingDimensions": "",
+                "to_Description": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_Description"
+                    }
+                },
+                "to_Plant": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_Plant"
+                    }
+                },
+                "to_ProductBasicText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductBasicText"
+                    }
+                },
+                "to_ProductInspectionText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductInspectionText"
+                    }
+                },
+                "to_ProductProcurement": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductProcurement"
+                    }
+                },
+                "to_ProductPurchaseText": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductPurchaseText"
+                    }
+                },
+                "to_ProductQualityMgmt": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductQualityMgmt"
+                    }
+                },
+                "to_ProductSales": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductSales"
+                    }
+                },
+                "to_ProductSalesTax": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductSalesTax"
+                    }
+                },
+                "to_ProductStorage": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductStorage"
+                    }
+                },
+                "to_ProductUnitsOfMeasure": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_ProductUnitsOfMeasure"
+                    }
+                },
+                "to_SalesDelivery": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_SalesDelivery"
+                    }
+                },
+                "to_Valuation": {
+                    "__deferred": {
+                        "uri": "https://my400036-api.lab.s4hana.cloud.sap/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product('ZTEST_RAW_MAT')/to_Valuation"
+                    }
+                }
+            }
+        ]
+    }
+}
