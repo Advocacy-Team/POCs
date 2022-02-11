@@ -1,4 +1,4 @@
-CLASS zadt_sma_cl_file_into_sheet DEFINITION
+CLASS zadt_sma_cl_file_uploader DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -15,26 +15,21 @@ CLASS zadt_sma_cl_file_into_sheet DEFINITION
     DATA: fileext TYPE string.
     DATA: dataoption TYPE string.
     DATA: filedata TYPE string.
-    DATA: lt_filedata TYPE lty_filedata.
 
     METHODS: get_input_field_value IMPORTING name         TYPE string
                                              dataref      TYPE data
                                    RETURNING VALUE(value) TYPE string.
     METHODS: get_html RETURNING VALUE(ui_html) TYPE string.
 
-    METHODS: create_servicentry_sheet IMPORTING i_file_data TYPE lty_filedata
-                                      EXPORTING e_ses       TYPE string.
-
 ENDCLASS.
 
 
 
-CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
+CLASS zadt_sma_cl_file_uploader IMPLEMENTATION.
+
 
 
   METHOD if_http_service_extension~handle_request.
-    DATA:
-       lv_ses TYPE string.
 
     CASE request->get_method(  ).
 
@@ -62,17 +57,6 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
 
       WHEN CONV string( if_web_http_client=>post ).
 
-*        AUTHORITY-CHECK OBJECT 'M_SES_EKO'
-**                             ID 'ZBUKRS' FIELD ''
-*                             ID 'ACTVT' FIELD '03'.
-*
-        IF sy-subrc <> 0.
-          response->set_status( i_code = if_web_http_status=>ok
-             i_reason = | 'You are not authorized' | ) .
-          response->set_text( |You are not authorized for creating service entry sheet| ).
-        ELSE.
-          DATA(lv_auth) = abap_true.
-        ENDIF.
 * the request comes in with metadata around the actual file data,
 * extract the filename and fileext from this metadata as well as the raw file data.
         SPLIT request->get_text(  )  AT cl_abap_char_utilities=>cr_lf INTO TABLE DATA(content).
@@ -90,45 +74,76 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
 
         ENDIF.
 
-        CASE fileext.
+        DELETE content FROM 1 TO 4.  " Get rid of the first 4 lines
+        DELETE content FROM ( lines( content ) - 8 ) TO lines( content ).  " get rid of the last 9 lines
 
-          WHEN 'json'.
-            DELETE content FROM 1 TO 4.  " Get rid of the first 4 lines
-          WHEN 'csv'.
-            DELETE content FROM 1 TO 5.  " Get rid of the first 5 lines
-        ENDCASE.
-
-        DELETE content FROM ( lines( content ) - 12 ) TO lines( content ).  " get rid of the last 9 lines
-
-        DATA:ls_filedata TYPE string.
-        FIELD-SYMBOLS: <fs_data> TYPE ty_filedata.
         LOOP AT content REFERENCE INTO content_item.  " put it all back together again humpdy dumpdy....
-*          filedata = filedata && content_item->*.
-          ls_filedata = content_item->*.
-          APPEND INITIAL LINE TO lt_filedata ASSIGNING <fs_data>.
-          SPLIT ls_filedata AT ',' INTO <fs_data>-purord
-                                        <fs_data>-ses_name
-                                        <fs_data>-obj_typ
-                                        <fs_data>-post_date
-                                        <fs_data>-cnfm_qty
-                                        <fs_data>-po_item
-                                        <fs_data>-acnt_cat
-                                        <fs_data>-prfm_date.
-
+          filedata = filedata && content_item->*.
         ENDLOOP.
 
-        IF NOT lt_filedata IS INITIAL.
-*          IF lv_auth = abap_true.
-          CALL METHOD create_servicentry_sheet
-            EXPORTING
-              i_file_data = lt_filedata
-            IMPORTING
-              e_ses       = lv_ses.
-          response->set_status( i_code = if_web_http_status=>ok
-                                i_reason = | 'Service Entry Sheet created successfully' | ) .
-          response->set_text( |Service Entry Sheet "{ lv_ses }" created successfully| ).
+* Unpack input field values such as tablename, dataoption, etc.
+        DATA(ui_data) = request->get_form_field(  `filetoupload-data` ).
+        DATA(ui_dataref) = /ui2/cl_json=>generate( json = ui_data ).
+        IF ui_dataref IS BOUND.
+          ASSIGN ui_dataref->* TO FIELD-SYMBOL(<ui_dataref>).
+          tablename = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref> ).
+          dataoption = me->get_input_field_value( name = `DATAOPTION` dataref = <ui_dataref> ).
         ENDIF.
-*       ENDIF.
+
+* Check table name is valid.
+        IF xco_cp_abap_repository=>object->tabl->database_table->for(
+                             iv_name =  CONV #( tablename ) )->exists(  ) = abap_false
+          OR tablename IS INITIAL.
+          response->set_status( i_code = if_web_http_status=>bad_request
+                                i_reason = |Table name { tablename } not valid or does not exist| ).
+          response->set_text( |Table name { tablename } not valid or does not exist| ).
+          RETURN.
+        ENDIF.
+
+* Check file extension is valid, only json today.
+        IF fileext <> `json`.
+          response->set_status( i_code = if_web_http_status=>bad_request
+                                i_reason = `File type not supported` ).
+          response->set_text( `File type not supported` ).
+          RETURN.
+        ENDIF.
+
+* Load the data to the table via dynamic internal table
+        DATA: dynamic_table TYPE REF TO data.
+        FIELD-SYMBOLS: <table_structure> TYPE table.
+
+        TRY.
+            CREATE DATA dynamic_table TYPE TABLE OF (tablename).
+            ASSIGN dynamic_table->* TO <table_structure>.
+          CATCH cx_sy_create_data_error INTO DATA(cd_exception).
+            response->set_status( i_code = if_web_http_status=>bad_request
+                                 i_reason = cd_exception->get_text(  ) ).
+            response->set_text( cd_exception->get_text(  )  ).
+            RETURN.
+        ENDTRY.
+
+        /ui2/cl_json=>deserialize( EXPORTING json = filedata
+                                   pretty_name = /ui2/cl_json=>pretty_mode-none
+                                   CHANGING data = <table_structure> ).
+
+        IF dataoption = `1`.  "if replace, delete the data from the table first
+          DELETE FROM (tablename).
+        ENDIF.
+
+        TRY.
+            INSERT (tablename) FROM TABLE @<table_structure>.
+            IF sy-subrc = 0.
+              response->set_status( i_code = if_web_http_status=>ok
+                                    i_reason = `Table updated successfully` ).
+              response->set_text( `Table updated successfully` ).
+            ENDIF.
+          CATCH cx_sy_open_sql_db INTO DATA(db_exception).
+            response->set_status( i_code = if_web_http_status=>bad_request
+                                 i_reason = db_exception->get_text(  ) ).
+            response->set_text( db_exception->get_text(  )  ).
+            RETURN.
+        ENDTRY.
+
     ENDCASE.
 
   ENDMETHOD.
@@ -167,7 +182,7 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
      |                async: true \n| &&
      |            \}).then(() => \{ \n| &&
      |                let shell = new sap.f.ShellBar("shell") \n| &&
-     |                shell.setTitle("Service Entry Sheet Uploader") \n| &&
+     |                shell.setTitle("ABAP File Uploader") \n| &&
      |                shell.setShowCopilot(true) \n| &&
      |                shell.setShowSearch(true) \n| &&
      |                shell.setShowNotifications(true) \n| &&
@@ -194,10 +209,10 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
      |                        \} \n| &&
      |                        let oInput = oCore.byId("tablename") \n| &&
      |                        let oGroup = oCore.byId("grpDataOptions") \n| &&
-*     |                        if (!oInput.getValue())\{ \n| &&
-*     |                            sap.m.MessageToast.show("Target Table is Required") \n| &&
-*     |                            return \n| &&
-*     |                        \} \n| &&
+     |                        if (!oInput.getValue())\{ \n| &&
+     |                            sap.m.MessageToast.show("Target Table is Required") \n| &&
+     |                            return \n| &&
+     |                        \} \n| &&
      |                       let param = oCore.byId("uploadParam") \n| &&
      |                       param.setValue( oInput.getValue() ) \n| &&
      |                       oFileUploader.getParameters() \n| &&
@@ -206,15 +221,15 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
      |                       oFileUploader.upload() \n| &&
      |                    \}) \n| &&
      |                    let input = new sap.m.Input("tablename") \n| &&
-*     |                    input.placeAt("layout") \n| &&
-*     |                    input.setRequired(true) \n| &&
-*     |                    input.setWidth("600px") \n| &&
-*     |                    input.setPlaceholder("Target ABAP Table") \n| &&
+     |                    input.placeAt("layout") \n| &&
+     |                    input.setRequired(true) \n| &&
+     |                    input.setWidth("600px") \n| &&
+     |                    input.setPlaceholder("Target ABAP Table") \n| &&
      |                    input.setShowSuggestion(true) \n| &&
      |                    input.attachSuggest(function (oEvent)\{ \n| &&
      |                      jQuery.ajax(\{headers: \{ "sap-table-request": oEvent.getParameter("suggestValue") \n | &&
      |                          \}, \n| &&
-     |                         error: function(oErr)\{ alert( JSON.stringify(oErr))\}, timeout: 30000, method:"GET",dataType: "json",success: function(myJSON) \{ \n| &&
+     |                         error: function(oErr)\{ alert( JSON.stringify(oErr))\}, timeout: 300000, method:"GET",dataType: "json",success: function(myJSON) \{ \n| &&
  "   |                      alert( 'test' ) \n| &&
      |                      let input = oCore.byId("tablename") \n | &&
      |                      input.destroySuggestionItems() \n | &&
@@ -231,12 +246,23 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
      |                    let groupDataOptions = new sap.m.RadioButtonGroup("grpDataOptions") \n| &&
      |                    let lblGroupDataOptions = new sap.m.Label("lblDataOptions") \n| &&
      |                    lblGroupDataOptions.setLabelFor(groupDataOptions) \n| &&
+     |                    lblGroupDataOptions.setText("Data Upload Options") \n| &&
+     |                    lblGroupDataOptions.placeAt("line3") \n| &&
+     |                    groupDataOptions.placeAt("line4") \n| &&
+     |                    rbAppend = new sap.m.RadioButton("rbAppend") \n| &&
+     |                    rbReplace = new sap.m.RadioButton("rbReplace") \n| &&
+     |                    rbAppend.setText("Append") \n| &&
+     |                    rbReplace.setText("Replace") \n| &&
+     |                    groupDataOptions.addButton(rbAppend) \n| &&
+     |                    groupDataOptions.addButton(rbReplace) \n| &&
+     |                    rbAppend.setGroupName("grpDataOptions") \n| &&
+     |                    rbReplace.setGroupName("grpDataOptions") \n| &&
      |                    sap.ui.getCore().loadLibrary("sap.ui.unified", \{ \n| &&
      |                        async: true \n| &&
      |                    \}).then(() => \{ \n| &&
      |                        var fileUploader = new sap.ui.unified.FileUploader( \n| &&
      |                            "fileToUpload") \n| &&
-     |                        fileUploader.setFileType(["csv","json"]) \n| &&
+     |                        fileUploader.setFileType("json") \n| &&
      |                        fileUploader.setWidth("400px") \n| &&
      |                        let param = new sap.ui.unified.FileUploaderParameter("uploadParam") \n| &&
      |                        param.setName("tablename") \n| &&
@@ -262,89 +288,4 @@ CLASS ZADT_SMA_CL_FILE_INTO_SHEET IMPLEMENTATION.
      |</html> |.
   ENDMETHOD.
 
-
-  METHOD create_Servicentry_Sheet.
-
-    DATA:
-      ls_header_data TYPE I_ServiceEntrySheetTP_2,
-      ls_item_data   TYPE I_ServiceEntrySheetItemTP_2,
-
-      lt_header_crt  TYPE TABLE FOR CREATE I_ServiceEntrySheetTP_2\\ServiceEntrySheet,
-      lt_item_cba    TYPE TABLE FOR CREATE I_serviceentrysheettp_2\\ServiceEntrySheet\_ServiceEntrySheetItem.
-
-    LOOP AT i_file_data ASSIGNING FIELD-SYMBOL(<fs_file_data>).
-* Create SES with reference to a Service Purchase Order Item
-
-*--- Prepare Header Data
-      ls_header_data-ServiceEntrySheetName  = <fs_file_data>-ses_name.
-      ls_header_data-PurchaseOrder          = <fs_file_data>-purord.
-      ls_header_data-SESOriginObjectType    = <fs_file_data>-obj_typ.
-      ls_header_data-PostingDate            = <fs_file_data>-post_date.
-
-*--- Prepare Item Data
-      ls_item_data-PurchaseOrderItem              = <fs_file_data>-po_item.
-*ls_item_data-ServiceEntrySheetItem          = '2'.
-      ls_item_data-ConfirmedQuantity              = <fs_file_data>-cnfm_qty.
-*ls_item_data-ServiceEntrySheetItemDesc      = 'SERVICE PROCUREMENT'.
-      ls_item_data-AccountAssignmentCategory      = <fs_file_data>-acnt_cat.
-      ls_item_data-ServicePerformanceDate         = <fs_file_data>-prfm_date.
-*      ls_item_data-MultipleAcctAssgmtDistribution = '0'.
-
-
-*--- Prepare Payload
-      APPEND INITIAL LINE TO lt_header_crt ASSIGNING FIELD-SYMBOL(<ls_hdr_crt>).
-      <ls_hdr_crt> = CORRESPONDING #( ls_header_data CHANGING CONTROL ).
-      <ls_hdr_crt>-%cid     = `HEADER_1` .
-
-
-      APPEND INITIAL LINE TO lt_item_cba ASSIGNING FIELD-SYMBOL(<ls_itm_cba>).
-      <ls_itm_cba>-%cid_ref = 'HEADER_1'.
-
-      APPEND INITIAL LINE TO <ls_itm_cba>-%target ASSIGNING FIELD-SYMBOL(<item_data>).
-      <item_data>       = CORRESPONDING #( ls_item_data CHANGING CONTROL ).
-      <item_data>-%cid  = 'Item_1'.
-
-    ENDLOOP.
-
-
-    MODIFY ENTITIES OF I_ServiceEntrySheetTP_2
-      ENTITY serviceEntrySheet
-        CREATE
-          FROM lt_header_crt
-         CREATE BY \_ServiceEntrySheetItem
-          FROM  lt_item_cba
-      FAILED DATA(ls_failed_crt)
-      REPORTED DATA(ls_reported_crt)
-      MAPPED DATA(ls_mapped_crt).
-
-    DATA : lv_flag TYPE c.
-
-    LOOP AT ls_failed_crt-serviceentrysheet ASSIGNING FIELD-SYMBOL(<failed>).
-
-      lv_flag = ''.
-
-      IF <failed>-%fail-cause IS NOT INITIAL.
-
-        lv_flag = 'X'.
-
-      ENDIF.
-
-    ENDLOOP.
-
-    "-- Commit and get the SES number
-    COMMIT ENTITIES
-      BEGIN RESPONSE OF I_ServiceEntrySheetTP_2
-      REPORTED DATA(reported_late)
-      FAILED DATA(failed_late).
-
-    LOOP AT ls_mapped_crt-serviceentrysheet ASSIGNING FIELD-SYMBOL(<mapped>).
-      CONVERT KEY OF I_ServiceEntrySheetTP_2 FROM <mapped>-%pid TO DATA(lv_ses).
-      <mapped>-ServiceEntrySheet = lv_ses.
-    ENDLOOP.
-    IF NOT lv_ses IS INITIAL.
-      e_ses = lv_ses.
-    ENDIF.
-    COMMIT ENTITIES END.
-
-  ENDMETHOD.
 ENDCLASS.
