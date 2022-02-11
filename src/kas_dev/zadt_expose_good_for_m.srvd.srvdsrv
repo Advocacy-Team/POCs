@@ -1,0 +1,4 @@
+@EndUserText.label: 'Service Definition Good For Data'
+define service ZADT_EXPOSE_GOOD_FOR_M {
+  expose ZADT_C_Good_For_M;
+}
