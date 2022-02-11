@@ -366,8 +366,33 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
 *             && '"ProductDescription": "Test Product from ABAP class"}'
 *             && ']}}'.
 
-lv_body = /ui2/cl_json=>serialize( data = lt_filedata
-                   pretty_name = /ui2/cl_json=>pretty_mode-camel_case ).
+*                                            <fs_data>-ProductType
+*                                            <fs_data>-baseunit
+*                                            <fs_data>-industrysector
+*                                            <fs_data>-language
+*                                            <fs_data>-productdescription.
+
+
+      lv_body = |\{"ProductType": "{ <fs_fdata>-ProductType }",| &&
+              |"BaseUnit": "{ <fs_fdata>-baseunit }",| &&
+              |"IndustrySector": "{ <fs_fdata>-industrysector }",| &&
+              |"to_Description": | &&
+              |\{"results": | &&
+              |[\{"Language": "{ <fs_fdata>-language }",| &&
+              |"ProductDescription": "{ <fs_fdata>-productdescription }"\}| &&
+              |]\}\}|.
+
+*lv_body = |\{ "ProductType": "MAT", "BaseUnit": "KG", "IndustrySector": "M",| &&
+*       |"to_Description": \{ "results": [ | &&
+*         |\{ "Language": "EN", "ProductDescription": "Test Material"\}]\}\}|.
+
+**// Set body for Header and Item values
+*      lv_body = |\{ "Product": "{ <fs_fdata>-product }","ProductType": "{ <fs_fdata>-prdtyp }","BaseUnit": "{ <fs_fdata>-unit }","Division": "{ <fs_fdata>-divsn }","to_Description": \{"results": [| &&
+*          |\{"Language": "EN","ProductDescription": "{ <fs_fdata>-prd_desc }"\}]\}\}\} |.
+
+
+*lv_body = /ui2/cl_json=>serialize( data = lt_filedata
+*                   pretty_name = /ui2/cl_json=>pretty_mode-camel_case ).
 *      lv_body = lv_json.
 
       TRY.
