@@ -111,6 +111,15 @@ CLASS ZCL_VKO_PUCHASE_POC IMPLEMENTATION.
    SPLIT header_json AT 'CompanyCode:' INTO lv_str1 lv_str2.
    SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
    lv_company_code = lv_str1.
+   
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  """"""""""""""""""""""""""""""""field validation (2.3)""""""""""""""""""""""""
+  if lv_ret_rate is initial  or lv_ret_days is initial.
+   response->set_status( i_code = if_web_http_status=>bad_request
+                                i_reason = |'Z' fields are empty. Impossible to process!| ).
+          response->set_text( |'Z' fields are empty. Impossible to process!| ).
+  return.
+endif.
    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """""""""""""""""""""""Form json for header"""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
