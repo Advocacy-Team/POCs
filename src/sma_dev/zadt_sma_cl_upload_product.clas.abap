@@ -22,7 +22,8 @@ CLASS zadt_sma_cl_upload_product DEFINITION
                                    RETURNING VALUE(value) TYPE string.
     METHODS: get_html RETURNING VALUE(rv_ui_html) TYPE string.
 
-    METHODS: create_material IMPORTING it_file_data TYPE tt_filedata.
+    METHODS: create_material IMPORTING it_file_data TYPE tt_filedata
+                             EXPORTING ev_id        TYPE string.
 
     METHODS: get_product IMPORTING io_response     TYPE REF TO if_web_http_response.
 
@@ -80,20 +81,6 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
         CASE lv_fileext.
           WHEN 'json'.
 
-
-*            DATA: dynamic_table TYPE REF TO data.
-*            FIELD-SYMBOLS: <table_structure> TYPE tt_filedata.
-*
-**        TRY.
-**        DATA
-**            CREATE DATA dynamic_table TYPE TABLE OF ().
-**            ASSIGN lt_filedata->* TO <table_structure>.
-**          CATCH cx_sy_create_data_error INTO DATA(cd_exception).
-**            response->set_status( i_code = if_web_http_status=>bad_request
-**                                 i_reason = cd_exception->get_text(  ) ).
-**            response->set_text( cd_exception->get_text(  )  ).
-**            RETURN.
-**        ENDTRY.
             LOOP AT content ASSIGNING FIELD-SYMBOL(<fs_content>).
               lv_filedata = |{ lv_filedata }{ <fs_content> }|.
             ENDLOOP.
@@ -101,8 +88,6 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
             /ui2/cl_json=>deserialize( EXPORTING json = lv_filedata
                                pretty_name = /ui2/cl_json=>pretty_mode-none
                                CHANGING data = lt_filedata ).
-*           DATA(lv_json) = /ui2/cl_json=>serialize( data = lt_filedata
-*                   pretty_name = /ui2/cl_json=>pretty_mode-none ).
 
           WHEN 'csv'.
 
@@ -119,14 +104,20 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
                                             <fs_data>-productdescription.
             ENDLOOP.
 
-*            /ui2/cl_json=>serialize( data = lv_filedata
-*                   pretty_name = /ui2/cl_json=>pretty_mode-none ).
-
         ENDCASE.
 
+        DATA lv_id TYPE string.
         IF NOT lt_filedata IS INITIAL.
-          CALL METHOD create_material EXPORTING it_file_data = lt_filedata.
+          CALL METHOD create_material
+            EXPORTING
+              it_file_data = lt_filedata
+            IMPORTING
+              ev_id        = lv_id.
         ENDIF.
+
+        response->set_status( i_code = if_web_http_status=>ok
+                              i_reason = | 'Product created successfully' | ) .
+        response->set_text( |Product "{ lv_id }" created successfully| ).
 
     ENDCASE.
 
@@ -290,18 +281,9 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
         (  name = 'X-CSRF-Token'
            value = 'Fetch' )
          ) ).
-*        lo_web_http_request->set_header_field( EXPORTING i_name = 'X-CSRF-Token' i_value = 'Fetch' ). "lr_get_csrf ).
-
-*        TRY.
-*            lo_web_http_client->set_csrf_token( ).
-*          CATCH cx_web_http_client_error.
-*        ENDTRY.
 
         "set request method and execute request
         DATA(lo_web_http_response) = lo_web_http_client->execute( if_web_http_client=>get ).
-*        DATA(lv_get_response) = lo_web_http_response->get_text( ).
-*        data(lv_header_response) = lo_web_http_request->get_header_fields( ).
-*        DATA(lv_get_response_headers) = lo_web_http_response->get_header_fields( ).
 
         IF io_response IS NOT INITIAL.
           io_response->set_text( lo_web_http_response->get_text( ) ). "lv_get_response ).
@@ -327,11 +309,6 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
       DATA(lo_dest) = cl_http_destination_provider=>create_by_url( 'https://my400036-api.lab.s4hana.cloud.sap:443/sap/opu/odata/sap/API_PRODUCT_SRV/A_Product' ).
       DATA(lo_http_client) = cl_web_http_client_manager=>create_by_http_destination( i_destination = lo_dest ).
 
-**// Set body for Header and Item values
-*      lv_body = |\{ "Product": "{ <fs_fdata>-product }","ProductType": "{ <fs_fdata>-prdtyp }","BaseUnit": "{ <fs_fdata>-unit }","Division": "{ <fs_fdata>-divsn }","to_Description": \{"results": [| &&
-*          |\{"Language": "EN","ProductDescription": "{ <fs_fdata>-prd_desc }"\}]\},"to_Plant":\{"results": [| &&
-*          |\{"Plant": "{ <fs_fdata>-plant }","MRPType": "{ <fs_fdata>-mrptype }","BaseUnit": "{ <fs_fdata>-b_unit }"\}]\}\} |.
-
       lo_http_client->set_authn_mode( if_a4c_cp_service=>service_specific ).
       DATA(lo_request) = lo_http_client->get_http_request( ).
       lo_request->set_header_field( EXPORTING i_name = 'APIKey' i_value = 'fgTDyAQAB2oPextZunYysnDo4aKhLXGF' ).
@@ -347,31 +324,6 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
       lo_request->set_header_field( EXPORTING i_name = 'X-CSRF-Token' i_value = lv_x_csrf_token ).
 
       DATA(lv_header_response) = lo_request->get_header_fields( ).
-*        DATA(lv_get_response_headers) = lo_web_http_response->get_header_fields( ).
-
-
-*      DATA(lr_csrf) = lo_request->get_header_field( EXPORTING i_name = 'X-CSRF-Token' ).
-*      lo_request->set_header_field( EXPORTING i_name = 'X-CSRF-Token' i_value = lr_csrf ).
-
-
-*// Set body for Header and Item values
-
-*      " TODO - change hardcoded body to body from file
-*      lv_body = '{"ProductType": "MAT",'
-*             && '"BaseUnit": "KG",'
-*             && '"IndustrySector": "M",'
-*             && '"to_Description": '
-*             && '{"results": '
-*             && '[{"Language": "EN",'
-*             && '"ProductDescription": "Test Product from ABAP class"}'
-*             && ']}}'.
-
-*                                            <fs_data>-ProductType
-*                                            <fs_data>-baseunit
-*                                            <fs_data>-industrysector
-*                                            <fs_data>-language
-*                                            <fs_data>-productdescription.
-
 
       lv_body = |\{"ProductType": "{ <fs_fdata>-ProductType }",| &&
               |"BaseUnit": "{ <fs_fdata>-baseunit }",| &&
@@ -382,25 +334,9 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
               |"ProductDescription": "{ <fs_fdata>-productdescription }"\}| &&
               |]\}\}|.
 
-*lv_body = |\{ "ProductType": "MAT", "BaseUnit": "KG", "IndustrySector": "M",| &&
-*       |"to_Description": \{ "results": [ | &&
-*         |\{ "Language": "EN", "ProductDescription": "Test Material"\}]\}\}|.
-
-**// Set body for Header and Item values
-*      lv_body = |\{ "Product": "{ <fs_fdata>-product }","ProductType": "{ <fs_fdata>-prdtyp }","BaseUnit": "{ <fs_fdata>-unit }","Division": "{ <fs_fdata>-divsn }","to_Description": \{"results": [| &&
-*          |\{"Language": "EN","ProductDescription": "{ <fs_fdata>-prd_desc }"\}]\}\}\} |.
-
-
-*lv_body = /ui2/cl_json=>serialize( data = lt_filedata
-*                   pretty_name = /ui2/cl_json=>pretty_mode-camel_case ).
-*      lv_body = lv_json.
-
       TRY.
           lo_request->set_text(
-*            EXPORTING
               i_text   = lv_body
-*            RECEIVING
-*              r_value  = lo_value_r
           ).
         CATCH cx_web_message_error.
       ENDTRY.
@@ -410,32 +346,14 @@ CLASS zadt_sma_cl_upload_product IMPLEMENTATION.
 
           lo_response = lo_http_client->execute( if_web_http_client=>post ).
           DATA(lv_response_text) = lo_response->get_text( ).
-
 *        CATCH cx_web_http_client_error.
 
-*          DATA(lo_response) = lo_http_client->execute( i_method = if_web_http_client=>post ).
-*          DATA(http_status) = lo_response->get_header_field( i_name = '~status_code' ).
-*          DATA(lv_reason) = lo_response->get_header_field( '~status_reason' ).
-*
-*          lv_header_response = lo_request->get_header_fields( ).
-*          lv_header_response = lo_response->get_header_fields( ).
-*
-*          IF http_status(1) = '2'.
-*            DATA(lv_response) = lo_response->get_text( ).
-*            DATA(lr_data) = /ui2/cl_json=>generate( json = lv_response ).
-*            SPLIT lv_response AT 'A_Product(' INTO DATA(lv_text) DATA(lv_text1).
-*            SPLIT lv_text1 AT ')' INTO DATA(lv_text2) DATA(lv_text_3).
-*            DATA(lv_material) = lv_text2.
-*            COMMIT WORK.
-*            lo_response->set_status( i_code = if_web_http_status=>ok
-*                   i_reason = | 'Material "{ lv_material }" created successfully' | ) .
-*            lo_response->set_text( |'Material "{ lv_material }" created successfully'| ).
-*
-*          ELSE.
-*
-*            lo_response->set_text( |{ http_status } { lv_reason }| ).
-*
-*          ENDIF.
+          DATA lv_id TYPE string.
+          lv_id = lv_response_text.
+          REPLACE FIRST OCCURRENCE OF REGEX '\C+API_PRODUCT_SRV/A_Product\(' IN lv_id WITH ''.
+          REPLACE FIRST OCCURRENCE OF REGEX '\)/to_Description</id>\C+' IN lv_id WITH ''.
+
+          ev_id = lv_id.
 
         CATCH cx_root INTO DATA(lx_exception).
 *            out->write( lx_exception->get_text( ) ).
