@@ -34,14 +34,11 @@ PUBLIC
   PRIVATE SECTION.
 ENDCLASS.
 
-
-
 CLASS zcl_asa_api_po IMPLEMENTATION.
   METHOD if_http_service_extension~handle_request.
 
     CASE request->get_method(  ).
       WHEN CONV string( if_web_http_client=>get ).
-
 
         DATA(sap_order_request) = request->get_header_field( 'ordernum' ).
         IF sap_order_request IS INITIAL.
@@ -49,7 +46,6 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
         ENDIF.
 
       WHEN CONV string( if_web_http_client=>post ).
-
 
 *************************************************************************************
 ********AUTHORITY CHECKING, CONNECT OBJECT WITH USER ROLE TO USE*********************
@@ -65,6 +61,7 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
 
         "    ENDIF.
 ***************************************************************************************
+
         go_order_client = cl_web_http_client_manager=>create_by_http_destination(
           i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) ).
         DATA header_json TYPE string.
@@ -76,25 +73,27 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
          ) ).
 
         go_order_client->get_http_request( )->set_authorization_basic(
-                                             i_username = 'ZOSA'
-                                             i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
-        DATA lv_url TYPE string.
+                                             i_username = 'API_USER'
+                                             i_password = 'Welcome12345678901234567890!' ).
+        "i_username = 'ZOSA'
+        "i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
 
+        DATA lv_url TYPE string.
 
         " Unpack input field values such as tablename, dataoption, etc.
         DATA(ui_data) = request->get_form_field( `filetoupload-data` ).
         DATA(ui_dataref) = /ui2/cl_json=>generate( json = ui_data ).
+
         IF ui_dataref IS BOUND.
           ASSIGN ui_dataref->* TO FIELD-SYMBOL(<ui_dataref>).
           gv_order_num = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref> ).
-
         ENDIF.
-
 
         lv_url = 'https://my305270-api.s4hana.ondemand.com:443/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV/A_PurchaseOrder('''.
         CONCATENATE lv_url gv_order_num INTO lv_url.
         CONCATENATE lv_url ''')' INTO lv_url.
         "lv_url = 'https://my305270.lab.s4hana.cloud.sap/sap/opu/odata/sap/APS_IAM_BUSR_SRV/aps_iam_busr_ddl(''C5190879'')/to_AssignedBusinessRoles'.
+
         lo_req->set_uri_path( i_uri_path = lv_url ).
         TRY.
             DATA(lv_response) = go_order_client->execute( i_method = if_web_http_client=>get )->get_text( ).
@@ -106,6 +105,11 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
             CONCATENATE lv_url '/to_PurchaseOrderItem' INTO lv_url.
             lo_req->set_uri_path( i_uri_path = lv_url ).
             lv_response =  go_order_client->execute( i_method = if_web_http_client=>get )->get_text( ).
+
+            "DATA(http_status) = go_order_client->get_header_field( i_name = '~status_code' ).
+            "IF http_status = ''.
+
+            "ENDIF.
 
             DATA lv_item_json TYPE string.
             DATA lv_str1 TYPE string.
@@ -160,12 +164,9 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
             IF lv_ret_rate EQ 0 OR lv_ret_days EQ 0 OR lv_zpayment_term EQ ' '.
               response->set_status( i_code   = if_web_http_status=>bad_request
                                     i_reason = |'Z' fields are empty. Impossible to process!| ).
-              response->set_text( |Specified Purchase Order #{ gv_order_num } is not relevant invoicing with retention. Retention % and Retention Payment Term are not specified.| ).
+              response->set_text( |Specified Purchase Order { gv_order_num } is not relevant invoicing with retention. Retention % and Retention Payment Term are not specified.| ).
               RETURN.
             ENDIF.
-
-
-
 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
             """""""""""""""""""""""Form json for header"""""""""""""""""""""""""""""""""""""""""""
@@ -239,8 +240,10 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
 
         DATA(lo_req_invoice) = lo_invoice_client->get_http_request(  ).
         lo_invoice_client->get_http_request( )->set_authorization_basic(
-                                            i_username = 'ZOSA'
-                                            i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
+                                            i_username = 'API_USER'
+                                            i_password = 'Welcome12345678901234567890!' ).
+        "i_username = 'ZOSA'
+        "i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
 
         lo_invoice_client->set_authn_mode( if_a4c_cp_service=>service_specific ).
 
@@ -341,14 +344,12 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
 
   ENDMETHOD.
 
-
   METHOD constructor.
     "    go_order_client = cl_web_http_client_manager=>create_by_http_destination(
     "   i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) ).
     "  lo_invoice_client = cl_web_http_client_manager=>create_by_http_destination(
     " i_destination = cl_http_destination_provider=>create_by_url( gv_invoice_api_url ) ).
   ENDMETHOD.
-
 
   METHOD get_input_field_value.
 
@@ -362,7 +363,6 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
-
 
   METHOD get_html.
     ui_html =
