@@ -3,6 +3,23 @@ PUBLIC
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
+    TYPES: BEGIN OF zasa_s_form,
+             yy1_retentionrate_pdh  TYPE int4,
+             yy1_zretentiondays_pdh TYPE int4,
+             companycode            TYPE string,
+             ordercurrency          TYPE string,
+             invoicingparty         TYPE string,
+             paymentterms           TYPE string,
+             zpaymentterms          TYPE string,
+           END OF zasa_s_form.
+
+    TYPES: BEGIN OF  zasa_s_purchase_item,
+             netpriceamount   TYPE int4,
+             netpricequantity TYPE int4,
+             itemnumber       TYPE int4,
+           END OF zasa_s_purchase_item.
+
     METHODS: constructor,
       get_html RETURNING VALUE(ui_html) TYPE string,
       get_input_field_value IMPORTING name         TYPE string
@@ -17,24 +34,18 @@ PUBLIC
   PRIVATE SECTION.
 ENDCLASS.
 
-
-
 CLASS zcl_vko_puchase_poc IMPLEMENTATION.
-
-
   METHOD if_http_service_extension~handle_request.
 
     CASE request->get_method(  ).
       WHEN CONV string( if_web_http_client=>get ).
 
-
-        DATA(sap_order_request) = request->get_header_field('ordernum' ).
+        DATA(sap_order_request) = request->get_header_field( 'ordernum' ).
         IF sap_order_request IS INITIAL.
           response->set_text( get_html(   ) ).
         ENDIF.
 
       WHEN CONV string( if_web_http_client=>post ).
-
 
 *************************************************************************************
 ********AUTHORITY CHECKING, CONNECT OBJECT WITH USER ROLE TO USE*********************
@@ -50,8 +61,9 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
 
         "    ENDIF.
 ***************************************************************************************
+
         go_order_client = cl_web_http_client_manager=>create_by_http_destination(
-i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) ).
+          i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) ).
         DATA header_json TYPE string.
         DATA(lo_req) = go_order_client->get_http_request(  ).
         lo_req->set_header_fields( VALUE #(
@@ -61,35 +73,43 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
          ) ).
 
         go_order_client->get_http_request( )->set_authorization_basic(
-                                             i_username = 'ZOSA'
-                                             i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
+                                             i_username = 'API_USER'
+                                             i_password = 'Welcome12345678901234567890!' ).
+        "i_username = 'ZOSA'
+        "i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
+
         DATA lv_url TYPE string.
 
-
         " Unpack input field values such as tablename, dataoption, etc.
-        DATA(ui_data) = request->get_form_field(  `filetoupload-data` ).
+        DATA(ui_data) = request->get_form_field( `filetoupload-data` ).
         DATA(ui_dataref) = /ui2/cl_json=>generate( json = ui_data ).
+
         IF ui_dataref IS BOUND.
           ASSIGN ui_dataref->* TO FIELD-SYMBOL(<ui_dataref>).
           gv_order_num = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref> ).
-
         ENDIF.
-
 
         lv_url = 'https://my305270-api.s4hana.ondemand.com:443/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV/A_PurchaseOrder('''.
         CONCATENATE lv_url gv_order_num INTO lv_url.
         CONCATENATE lv_url ''')' INTO lv_url.
         "lv_url = 'https://my305270.lab.s4hana.cloud.sap/sap/opu/odata/sap/APS_IAM_BUSR_SRV/aps_iam_busr_ddl(''C5190879'')/to_AssignedBusinessRoles'.
+
         lo_req->set_uri_path( i_uri_path = lv_url ).
         TRY.
-            DATA(lv_response) = go_order_client->execute( i_method = if_web_http_client=>get )->get_text(  ).
+            DATA(lv_response) = go_order_client->execute( i_method = if_web_http_client=>get )->get_text( ).
             header_json = lv_response.
-            DATA: header_table TYPE STANDARD TABLE OF zvko_s_from_fzb.
-            DATA: item_table TYPE STANDARD TABLE OF zvko_s_purchase_item.
+
+            DATA: header_table TYPE STANDARD TABLE OF zasa_s_form.
+            DATA: item_table TYPE STANDARD TABLE OF zasa_s_purchase_item.
 
             CONCATENATE lv_url '/to_PurchaseOrderItem' INTO lv_url.
             lo_req->set_uri_path( i_uri_path = lv_url ).
-            lv_response =  go_order_client->execute( i_method = if_web_http_client=>get )->get_text(  ).
+            lv_response =  go_order_client->execute( i_method = if_web_http_client=>get )->get_text( ).
+
+            "DATA(http_status) = go_order_client->get_header_field( i_name = '~status_code' ).
+            "IF http_status = ''.
+
+            "ENDIF.
 
             DATA lv_item_json TYPE string.
             DATA lv_str1 TYPE string.
@@ -141,15 +161,12 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
             """"""""""""""""""""""""""""""""FIELD VALIDATION""""""""""""""""""""""""
             """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-            IF lv_ret_rate EQ 0  OR lv_ret_days EQ 0 OR lv_zpayment_term EQ ' '.
-              response->set_status( i_code = if_web_http_status=>bad_request
-                                           i_reason = |'Z' fields are empty. Impossible to process!| ).
-              response->set_text( |'Z' fields are empty. Impossible to process!| ).
+            IF lv_ret_rate EQ 0 OR lv_ret_days EQ 0 OR lv_zpayment_term EQ ' '.
+              response->set_status( i_code   = if_web_http_status=>bad_request
+                                    i_reason = |'Z' fields are empty. Impossible to process!| ).
+              response->set_text( |Specified Purchase Order { gv_order_num } is not relevant invoicing with retention. Retention % and Retention Payment Term are not specified.| ).
               RETURN.
             ENDIF.
-
-
-
 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
             """""""""""""""""""""""Form json for header"""""""""""""""""""""""""""""""""""""""""""
@@ -197,12 +214,12 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
             """"""""""Jsons deserializing""""""""""""""""""""""""""""""""""""""""""""""""""
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-            /ui2/cl_json=>deserialize( EXPORTING json = lv_splitted_header
-                                       pretty_name = /ui2/cl_json=>pretty_mode-none
-                                       CHANGING data = header_table ).
-            /ui2/cl_json=>deserialize( EXPORTING json = lv_splitted_item
-                                       pretty_name = /ui2/cl_json=>pretty_mode-none
-                                       CHANGING data = item_table ).
+            /ui2/cl_json=>deserialize( EXPORTING json        = lv_splitted_header
+                                                 pretty_name = /ui2/cl_json=>pretty_mode-none
+                                       CHANGING  data        = header_table ).
+            /ui2/cl_json=>deserialize( EXPORTING json        = lv_splitted_item
+                                                 pretty_name = /ui2/cl_json=>pretty_mode-none
+                                       CHANGING  data        = item_table ).
             DATA lv_amount_sum TYPE int4 VALUE 0.
             DATA lv_quantity_sum TYPE int4 VALUE 0.
             LOOP AT item_table INTO DATA(ls_item_table).
@@ -219,12 +236,14 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
         DATA(lo_dest) = cl_http_destination_provider=>create_by_url( 'https://my305270.s4hana.ondemand.com:443/sap/opu/odata/sap/API_SUPPLIERINVOICE_PROCESS_SRV/A_SupplierInvoice' ).
         DATA(lo_invoice_client) = cl_web_http_client_manager=>create_by_http_destination(
-        i_destination = lo_dest ).
+          i_destination = lo_dest ).
 
         DATA(lo_req_invoice) = lo_invoice_client->get_http_request(  ).
         lo_invoice_client->get_http_request( )->set_authorization_basic(
-                                            i_username = 'ZOSA'
-                                            i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
+                                            i_username = 'API_USER'
+                                            i_password = 'Welcome12345678901234567890!' ).
+        "i_username = 'ZOSA'
+        "i_password = 'WbsDMuaRLbMuxyCpvzEivmZKgj-PZBmSTZVJ9yqR' ).
 
         lo_invoice_client->set_authn_mode( if_a4c_cp_service=>service_specific ).
 
@@ -269,34 +288,35 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
 
 
         lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
-                  |          "SupplierInvoiceStatus" : "A","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_payment_term }",\r\n| &
-                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
-                  |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_amount_sum }", "QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|.
-
-
+                  |          "SupplierInvoiceStatus" : "","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","SupplierInvoiceIDByInvcgParty":"1", \r\n| &
+                  |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}, \r\n| &
+                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }","Plant":"1111",| &
+                  |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_remain }", "QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|.
 
         TRY.
             lo_req_invoice->set_text(
               EXPORTING
-                i_text   = lv_body ).
+                i_text = lv_body ).
           CATCH cx_web_message_error.
         ENDTRY.
 
-        DATA(lv_post_resp_paid) =  lo_invoice_client->execute( i_method = if_web_http_client=>post )->get_text(  ).
+        DATA(lv_post_resp_paid) =  lo_invoice_client->execute( i_method = if_web_http_client=>post )->get_text( ).
 
-        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/","SupplierInvoiceStatus" : "A",| &
-        |"PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":| &
-        |"{ lv_order_currency }","InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_zpayment_term }",| &
-        |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }","QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }",| &
-        |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_amount_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|..
+        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date(1647181328000)/","SupplierInvoiceStatus" : "",| &
+                  |"PostingDate":"/Date({ lv_unix_time })/","SupplierInvoiceIDByInvcgParty":"1","DocumentCurrency":| &
+                  |"{ lv_order_currency }","InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_zpayment_term }",| &
+                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}, \r\n| &
+                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }","QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }",| &
+                  |"PurchaseOrderItem":"{ lv_item_num }","Plant":"1111","SupplierInvoiceItemAmount":"{ lv_paid }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|..
+
         TRY.
             lo_req_invoice->set_text(
               EXPORTING
-                i_text   = lv_body ).
+                i_text = lv_body ).
           CATCH cx_web_message_error.
         ENDTRY.
-        DATA(lv_post_resp_remain) =  lo_invoice_client->execute( i_method = if_web_http_client=>post )->get_text(  ).
+        DATA(lv_post_resp_remain) =  lo_invoice_client->execute( i_method = if_web_http_client=>post )->get_text( ).
         """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
         """"""""""""""""PRINT FISCAL YEAR AND NUMBER OF CREATED INVOICES"""""""""""""""""""""""
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -318,15 +338,13 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
         SPLIT lv_post_resp_remain AT 'FiscalYear:' INTO lv_str1 lv_str2.
         SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
         lv_remain_year = lv_str1.
-        response->set_text( |First invoice number: { lv_paid_num } | &
-                            |First invoice fiscal year: { lv_paid_year } | &
-                            |Second invoice number: { lv_remain_num } | &
-                            |Second invoice fiscal year: { lv_remain_year }| ).
-
+        response->set_text( |Invoicing procedure completed for Purchase Order #{ gv_order_num } .\r\n| &
+                            |Following accounting documents were created:\r\n| &
+                            |Supplier Invoice: { lv_paid_num }\r\n| &
+                            |Supplier Invoice with retention: { lv_remain_num } | ).
     ENDCASE.
 
   ENDMETHOD.
-
 
   METHOD constructor.
     "    go_order_client = cl_web_http_client_manager=>create_by_http_destination(
@@ -334,7 +352,6 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
     "  lo_invoice_client = cl_web_http_client_manager=>create_by_http_destination(
     " i_destination = cl_http_destination_provider=>create_by_url( gv_invoice_api_url ) ).
   ENDMETHOD.
-
 
   METHOD get_input_field_value.
 
@@ -348,7 +365,6 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
     ENDIF.
 
   ENDMETHOD.
-
 
   METHOD get_html.
     ui_html =
@@ -391,7 +407,7 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
      |                    button.setWidth("400px") \n| &&
      |                    button.attachPress(function () \{ \n| &&
      |                    let oFileUploader = oCore.byId("fileToUpload") \n| &&
- "    |                        if (!oFileUploader.getValue()) \{ \n| &&
+  "    |                        if (!oFileUploader.getValue()) \{ \n| &&
   "   |                            sap.m.MessagLToast.show("Choose a file first") \n| &&
   "   |                            return \n| &&
   "  |                        \} \n| &&
@@ -418,7 +434,7 @@ i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url ) 
      |                      jQuery.ajax(\{headers: \{ "ordernum": oEvent.getParameter("suggestValue") \n | &&
      |                          \}, \n| &&
      |                         error: function(oErr)\{ alert( JSON.stringify(oErr))\}, timeout: 30000, method:"GET",dataType: "json",success: function(myJSON) \{ \n| &&
- "   |                      alert( 'test' ) \n| &&
+  "   |                      alert( 'test' ) \n| &&
      |                      let input = oCore.byId("tablename") \n | &&
      |                      input.destroySuggestionItems() \n | &&
      |                      for (var i = 0; i < myJSON.length; i++) \{ \n | &&
