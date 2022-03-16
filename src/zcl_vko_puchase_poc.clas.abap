@@ -1,3 +1,4 @@
+
 CLASS zcl_vko_puchase_poc DEFINITION
 PUBLIC
   CREATE PUBLIC .
@@ -288,11 +289,11 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
 
 
         lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
-                  |          "SupplierInvoiceStatus" : "","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","SupplierInvoiceIDByInvcgParty":"1", \r\n| &
+                  |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}, \r\n| &
-                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }","Plant":"1111",| &
-                  |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_remain }", "QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|.
+                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
+                  |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_paid }", "QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|.
 
         TRY.
             lo_req_invoice->set_text(
@@ -303,12 +304,29 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
 
         DATA(lv_post_resp_paid) =  lo_invoice_client->execute( i_method = if_web_http_client=>post )->get_text( ).
 
-        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date(1647181328000)/","SupplierInvoiceStatus" : "",| &
-                  |"PostingDate":"/Date({ lv_unix_time })/","SupplierInvoiceIDByInvcgParty":"1","DocumentCurrency":| &
-                  |"{ lv_order_currency }","InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_zpayment_term }",| &
-                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}, \r\n| &
-                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }","QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }",| &
-                  |"PurchaseOrderItem":"{ lv_item_num }","Plant":"1111","SupplierInvoiceItemAmount":"{ lv_paid }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|..
+        "ABAP Timestamp into Unix timestamp
+        GET TIME STAMP FIELD lv_current_time.
+        lv_tstmp1 = lv_current_time.
+        lv_tstmp2 = '19700101000000'.
+
+        TRY.
+            lv_secs = cl_abap_tstmp=>subtract(
+              tstmp1 = lv_tstmp1
+              tstmp2 = lv_tstmp2
+            ).
+          CATCH cx_parameter_invalid_range .
+          CATCH cx_parameter_invalid_type .
+        ENDTRY.
+        lv_str1 = lv_secs.
+        lv_str2 = lv_current_time.
+        lv_unix_time = lv_str1(10) && lv_str2+15(3).
+
+        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
+                  |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
+                  |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}, \r\n| &
+                  |"to_SuplrInvcItemPurOrdRef": \{"results": [\{"SupplierInvoiceItem":"1","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
+                  |"PurchaseOrderItem":"{ lv_item_num }","SupplierInvoiceItemAmount":"{ lv_remain }", "QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}]\}\}|.
 
         TRY.
             lo_req_invoice->set_text(
@@ -492,3 +510,4 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
      |</html> |.
   ENDMETHOD.
 ENDCLASS.
+
