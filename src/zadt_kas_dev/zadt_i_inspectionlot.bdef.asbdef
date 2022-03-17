@@ -1,0 +1,13 @@
+managed implementation in class zbp_adt_i_inspectionlot unique;
+strict;
+
+define behavior for ZADT_I_INSPECTIONLOT //alias <alias_name>
+persistent table QALS
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+}

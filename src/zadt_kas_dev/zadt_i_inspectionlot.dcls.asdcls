@@ -1,0 +1,10 @@
+@EndUserText.label: 'Access Control for ZADT_I_INSPECTIONLOT'
+@MappingRole: true
+define role ZADT_I_INSPECTIONLOT {
+  grant 
+    select
+      on
+        ZADT_I_INSPECTIONLOT
+          where
+            ( ) = aspect pfcg_auth( S_TABU_NAM, TABLE = 'ZADT_I_INSPECTIONLOT' , ACTVT = '08' );
+}

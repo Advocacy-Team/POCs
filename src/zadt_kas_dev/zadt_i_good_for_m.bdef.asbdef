@@ -1,0 +1,13 @@
+managed implementation in class zbp_adt_i_good_for_m unique;
+//strict; //Comment this line in to enable strict mode. The strict mode is prerequisite to be future proof regarding syntax and to be able to release your BO.
+
+define behavior for ZADT_I_Good_For_M //alias <alias_name>
+persistent table ZADT_YGGOOD_FOR
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+}

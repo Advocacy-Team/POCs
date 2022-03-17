@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_SIA2" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <SIA2>
+    <NAME>ZADT_SMA_BUKRS</NAME>
+    <DESCRIPTION>BUKRS restriction type test</DESCRIPTION>
+    <ID>ZADT_SMA_BUKRS</ID>
+    <AGGREGATION_CATEGORY>1</AGGREGATION_CATEGORY>
+    <ABAP_LANGUAGE_VERSION>5</ABAP_LANGUAGE_VERSION>
+    <FIELDS>
+     <item>
+      <FIELD_NAME>ZADT_SMA_BUKRS</FIELD_NAME>
+      <SORT_ORDER>01</SORT_ORDER>
+      <TEXT>RESTRICTION FIELD twst</TEXT>
+     </item>
+     <item>
+      <FIELD_NAME>ZADT_SMA_ACTVT</FIELD_NAME>
+      <SORT_ORDER>02</SORT_ORDER>
+      <TEXT>User ACTVT</TEXT>
+     </item>
+    </FIELDS>
+    <AUTH_OBJECTS>
+     <item>
+      <AUTH_OBJECT_ID>ZSMA_BUKRS</AUTH_OBJECT_ID>
+      <AUTH_OBJECT>ZSMA_BUKRS</AUTH_OBJECT>
+      <TEXT>BUKRS authorization obj</TEXT>
+     </item>
+    </AUTH_OBJECTS>
+    <OBJECT_VISIBILITY>
+     <IS_CREATE_BC_VISIBLE>X</IS_CREATE_BC_VISIBLE>
+     <IS_ASSIGN_TO_BC_VISIBLE>X</IS_ASSIGN_TO_BC_VISIBLE>
+    </OBJECT_VISIBILITY>
+   </SIA2>
+  </asx:values>
+ </asx:abap>
+</abapGit>
