@@ -17,7 +17,7 @@ PUBLIC
 
     TYPES: BEGIN OF  zasa_s_purchase_item,
              netpriceamount   TYPE int4,
-             netpricequantity TYPE int4,
+             netpricequantity(5) TYPE p decimals 2,
              itemnumber       TYPE int4,
            END OF zasa_s_purchase_item.
 
@@ -287,24 +287,29 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
         lv_str2 = lv_current_time.
         lv_unix_time = lv_str1(10) && lv_str2+15(3).
 
-
         lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
                   |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}| &
                   |,"to_SuplrInvcItemPurOrdRef": \{"results": [|.
         lv_counter = 0.
+        DATA lv_item_sum type int4.
+        DATA lv_current_quantity(5) type p decimals 2.
+
         LOOP AT item_table INTO ls_item_table.
+        lv_item_sum = ls_item_table-netpricequantity * ls_item_table-netpriceamount.
         IF lv_counter > 0.
         concatenate lv_body ',' INTO lv_body.
         ENDIF.
         lv_counter = lv_counter + 1.
+        lv_current_quantity = ls_item_table-netpricequantity - ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
         lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
-                  |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
-                  |"QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
+                  |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ lv_item_sum - ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
+                  |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity  }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
         concatenate lv_body lv_str1 into lv_body.
         ENDLOOP.
         concatenate lv_body ']}}' into lv_body.
+
         TRY.
             lo_req_invoice->set_text(
               EXPORTING
@@ -331,22 +336,23 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
         lv_str2 = lv_current_time.
         lv_unix_time = lv_str1(10) && lv_str2+15(3).
 
-        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
+       lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
                   |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
+                  |"CashDiscount1Percent":"0","CashDiscount1Days":"0","CashDiscount2Percent":"0","CashDiscount2Days":"0","NetPaymentDays":"0","DueCalculationBaseDate":"/Date({ lv_unix_time })/",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}| &
                   |,"to_SuplrInvcItemPurOrdRef": \{"results": [|.
         lv_counter = 0.
-        DATA lv_item_sum type int4.
+
         LOOP AT item_table INTO ls_item_table.
-        lv_item_sum = ls_item_table-netpricequantity * ls_item_table-netpriceamount.
         IF lv_counter > 0.
         concatenate lv_body ',' INTO lv_body.
         ENDIF.
         lv_counter = lv_counter + 1.
+        lv_current_quantity = ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
         lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
-                  |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ lv_item_sum - ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
-                  |"QuantityInPurchaseOrderUnit": "{ lv_quantity_sum }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
+                  |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
+                  |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
         concatenate lv_body lv_str1 into lv_body.
         ENDLOOP.
         concatenate lv_body ']}}' into lv_body.
