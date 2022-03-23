@@ -47,8 +47,7 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
         ENDIF.
 
       WHEN CONV string( if_web_http_client=>post ).
-     "  response->set_header_field( exporting i_name = 'ordernum' i_value = '0' ).
-      response->set_text( |Invoicing started . | ).
+  "   response->set_header_field( exporting i_name = 'ordernum' i_value = '0' ).
 
 
 *************************************************************************************
@@ -452,10 +451,11 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
      |                        async: true \n| &&
      |                    \}).then(() => \{\}) \n| &&
      |                    let button = new sap.m.Button("button") \n| &&
-     |                    button.setText("Create Invoices(DO NOT PRESS TWICE!)") \n| &&
+     |                    button.setText("Create Invoices") \n| &&
      |                    button.setWidth("400px") \n| &&
    "  |                    button.setvisible = false  \n| &&
      |                    button.attachPress(function () \{ \n| &&
+                             |                      alert( 'Wait please...' ) \n| &&
      |                    let oFileUploader = oCore.byId("fileToUpload") \n| &&
   "    |                        if (!oFileUploader.getValue()) \{ \n| &&
   "   |                            sap.m.MessagLToast.show("Choose a file first") \n| &&
