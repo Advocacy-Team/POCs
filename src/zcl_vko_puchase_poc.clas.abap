@@ -47,6 +47,9 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
         ENDIF.
 
       WHEN CONV string( if_web_http_client=>post ).
+     "  response->set_header_field( exporting i_name = 'ordernum' i_value = '0' ).
+      response->set_text( |Invoicing started . | ).
+
 
 *************************************************************************************
 ********AUTHORITY CHECKING, CONNECT OBJECT WITH USER ROLE TO USE*********************
@@ -337,9 +340,9 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
         lv_unix_time = lv_str1(10) && lv_str2+15(3).
 
        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
-                  |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |"CashDiscount1Percent":"0","CashDiscount1Days":"0","CashDiscount2Percent":"0","CashDiscount2Days":"0","NetPaymentDays":"0","DueCalculationBaseDate":"/Date({ lv_unix_time })/",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
+                  |  "PaymentBlockingReason":"A","SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
+       "           |"CashDiscount1Percent":"0","CashDiscount1Days":"0","CashDiscount2Percent":"0","CashDiscount2Days":"0","NetPaymentDays":"0","DueCalculationBaseDate":"/Date({ lv_unix_time })/",\r\n| &
+                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_zpayment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}| &
                   |,"to_SuplrInvcItemPurOrdRef": \{"results": [|.
         lv_counter = 0.
@@ -412,7 +415,6 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
-
   METHOD get_html.
     ui_html =
   |<!DOCTYPE HTML> \n| &&
@@ -450,8 +452,9 @@ CLASS zcl_vko_puchase_poc IMPLEMENTATION.
      |                        async: true \n| &&
      |                    \}).then(() => \{\}) \n| &&
      |                    let button = new sap.m.Button("button") \n| &&
-     |                    button.setText("Create Invoices") \n| &&
+     |                    button.setText("Create Invoices(DO NOT PRESS TWICE!)") \n| &&
      |                    button.setWidth("400px") \n| &&
+   "  |                    button.setvisible = false  \n| &&
      |                    button.attachPress(function () \{ \n| &&
      |                    let oFileUploader = oCore.byId("fileToUpload") \n| &&
   "    |                        if (!oFileUploader.getValue()) \{ \n| &&
