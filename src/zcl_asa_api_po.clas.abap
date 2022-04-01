@@ -4,7 +4,7 @@ PUBLIC
 
   PUBLIC SECTION.
 
-    TYPES: BEGIN OF zasa_s_form,
+    TYPES: BEGIN OF lty_order_ret,
              yy1_retentionrate_pdh  TYPE int4,
              yy1_zretentiondays_pdh TYPE int4,
              companycode            TYPE string,
@@ -12,13 +12,14 @@ PUBLIC
              invoicingparty         TYPE string,
              paymentterms           TYPE string,
              zpaymentterms          TYPE string,
-           END OF zasa_s_form.
+           END OF lty_order_ret.
 
-    TYPES: BEGIN OF  zasa_s_purchase_item,
-             netpriceamount      TYPE int4,
-             netpricequantity(5) TYPE p DECIMALS 2,
-             itemnumber          TYPE int4,
-           END OF zasa_s_purchase_item.
+    TYPES: BEGIN OF  lty_purchase_item,
+             netpriceamount(13)        TYPE p DECIMALS 2,
+             netpricequantity(16)      TYPE p DECIMALS 3,
+             itemnumber                TYPE int4,
+             PurchaseOrderQuantityUnit TYPE char3,
+           END OF lty_purchase_item.
 
     METHODS: constructor,
       get_html RETURNING VALUE(ui_html) TYPE string,
@@ -99,8 +100,8 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
             DATA(lv_response) = go_order_client->execute( i_method = if_web_http_client=>get )->get_text( ).
             header_json = lv_response.
 
-            DATA: header_table TYPE STANDARD TABLE OF zasa_s_form.
-            DATA: item_table TYPE STANDARD TABLE OF zasa_s_purchase_item.
+            DATA: header_table TYPE STANDARD TABLE OF lty_order_ret.
+            DATA: item_table TYPE STANDARD TABLE OF lty_purchase_item.
 
             CONCATENATE lv_url '/to_PurchaseOrderItem' INTO lv_url.
             lo_req->set_uri_path( i_uri_path = lv_url ).
@@ -173,9 +174,9 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
 
 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-            """""""""""""""""""""""Get parameters from Goods Receiver """"""""""""""""
+            """""""""""""""""""""""Get parameters from Goods Receiver """"""""""""""""""""""""""
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-            CONSTANTS: lv_url_goods TYPE string VALUE 'https://my305270-api.s4hana.ondemand.com:443/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV/A_MaterialDocumentItem'.
+            CONSTANTS: lc_url_goods TYPE string VALUE 'https://my305270-api.s4hana.ondemand.com:443/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV/A_MaterialDocumentItem'.
             " sap_order_request PurchaseOrder
             DATA: gv_order_api_url_gds TYPE string VALUE 'https://my305270.s4hana.ondemand.com:443/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV',
                   go_order_client_gds  TYPE REF TO if_web_http_client,
@@ -208,8 +209,7 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
               gv_order_num_gds = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref_gds> ).
             ENDIF.
 
-            "lv_url_gds = `https://my305270-api.s4hana.ondemand.com/sap/opu/odata/sap/API_MATERIAL_DOCUMENT_SRV/A_MaterialDocumentItem`.
-            CONCATENATE lv_url_goods `?$filter=PurchaseOrder eq'` gv_order_num_gds `'` INTO lv_url_gds.
+            CONCATENATE lc_url_goods `?$filter=PurchaseOrder eq'` gv_order_num_gds `'` INTO lv_url_gds.
 
             lo_req_gds->set_uri_path( i_uri_path = lv_url_gds ).
             TRY.
@@ -219,11 +219,10 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
                 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                 """"""""""Get from json Goods receipt items"""""""""""""""""""""""""""""""""""""""""
                 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
                 lv_item_json_gds = lv_response_gds.
 
                 TYPES: BEGIN OF ls_item_qty,
-                         PurchaseOrderItem   TYPE string,
+                         PurchaseOrderItem   TYPE int4, "string,
                          QuantityInBaseUnit  TYPE string,
                          QuantityInEntryUnit TYPE string,
                        END OF ls_item_qty.
@@ -277,9 +276,91 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
             ENDTRY.
 
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+            """""""""""""""""""""""Get parameters from Supplier Invoices""""""""""""""""""""""""
+            """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+            CONSTANTS: lc_url_inv TYPE string VALUE 'https://my305270.s4hana.ondemand.com:443/sap/opu/odata/sap/API_SUPPLIERINVOICE_PROCESS_SRV/A_SuplrInvcItemPurOrdRef'.
+            DATA: gv_order_api_url_inv TYPE string VALUE 'https://my305270.s4hana.ondemand.com:443/sap/opu/odata/sap/API_SUPPLIERINVOICE_PROCESS_SRV',
+                  go_order_client_inv  TYPE REF TO if_web_http_client,
+                  gv_order_num_inv     TYPE string.
+
+            go_order_client_inv = cl_web_http_client_manager=>create_by_http_destination(
+              i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url_inv ) ).
+
+            DATA item_json_inv TYPE string.
+            DATA(lo_req_inv) = go_order_client_inv->get_http_request(  ).
+
+            lo_req_inv->set_header_fields( VALUE #(
+             ( name = 'Content-Type' value = 'application/json')
+             ( name = 'Accept' value = 'application/json' )
+             ( name = 'APIKey' value = 'hwTmbcPc1KimcX4jFm96rUR3ApgHngUs' )
+             ) ).
+
+            go_order_client_inv->get_http_request( )->set_authorization_basic(
+                                                 i_username = 'API_USER'
+                                                 i_password = 'Welcome12345678901234567890!' ).
+
+            DATA lv_url_inv TYPE string.
+
+            " Unpack input field values such as tablename, dataoption, etc.
+            DATA(ui_data_inv) = request->get_form_field( `filetoupload-data` ).
+            DATA(ui_dataref_inv) = /ui2/cl_json=>generate( json = ui_data_inv ).
+
+            IF ui_dataref_inv IS BOUND.
+              ASSIGN ui_dataref_inv->* TO FIELD-SYMBOL(<ui_dataref_inv>).
+              gv_order_num_inv = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref_inv> ).
+            ENDIF.
+
+            CONCATENATE lc_url_inv `?$filter=PurchaseOrder eq'` gv_order_num_inv `'` INTO lv_url_inv.
+
+            lo_req_inv->set_uri_path( i_uri_path = lv_url_inv ).
+            TRY.
+                DATA(lv_response_inv) = go_order_client_inv->execute( i_method = if_web_http_client=>get )->get_text( ).
+                item_json_inv = lv_response_inv.
+
+              CATCH cx_web_message_error.
+            ENDTRY.
+
+            CLEAR: lv_is_end, lv_counter, lv_splitted_item, lv_str3, lv_str2, lv_str1, lv_item_num, lv_item_quantity_unit.
+
+            lv_str2 = item_json_inv.
+            REPLACE ALL OCCURRENCES OF '"' IN lv_str2 WITH ' '.
+            REPLACE ALL OCCURRENCES OF '''' IN lv_str2 WITH ' '.
+
+            WHILE lv_is_end EQ 0." To count sum of order`s items
+              FIND 'metadata' IN lv_str2.
+              IF sy-subrc EQ 0.
+                IF lv_splitted_item <> '['.
+                  CONCATENATE lv_splitted_item ',' INTO lv_splitted_item.
+                ENDIF.
+                SPLIT lv_str2 AT 'metadata' INTO lv_str1 lv_str2.
+                SPLIT lv_str2 AT 'PurchaseOrderItem:' INTO lv_str1 lv_str2.
+                SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
+                lv_item_num = lv_str1.
+                SPLIT lv_str2 AT 'QuantityInPurchaseOrderUnit:' INTO lv_str1 lv_str2.
+                SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
+                lv_item_quantity_unit = lv_str1.
+
+                READ TABLE lt_item_qty ASSIGNING FIELD-SYMBOL(<fs_item_inv>) WITH KEY purchaseorderitem = lv_item_num.
+                IF sy-subrc IS INITIAL.
+                  <fs_item_inv>-quantityinbaseunit = <fs_item_inv>-quantityinbaseunit - lv_item_quantity_unit.
+                  <fs_item_inv>-quantityinentryunit = <fs_item_inv>-quantityinentryunit - lv_item_quantity_unit.
+                ENDIF.
+              ELSE.
+                lv_is_end = 1.
+              ENDIF.
+            ENDWHILE.
+
+            DELETE lt_item_qty WHERE quantityinbaseunit EQ `0 ` OR quantityinbaseunit EQ `0.000` .
+
+            IF lt_item_qty IS INITIAL.
+              response->set_text( |There are no any goods receipt for Purchase Order { gv_order_num_gds }| ).
+              RETURN.
+            ENDIF.
+
+            """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
             """"""""""Form json for item""""""""""""""""""""""""""""""""""""""""""""""""""
             """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-            CLEAR: lv_is_end, lv_counter, lv_splitted_item.
+            CLEAR: lv_is_end, lv_counter, lv_splitted_item, lv_str2, lv_str1, lv_item_num, lv_item_quantity_unit.
 
             REPLACE ALL OCCURRENCES OF '"' IN lv_item_json WITH ' '.
             REPLACE ALL OCCURRENCES OF '''' IN lv_item_json WITH ' '.
@@ -308,7 +389,7 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
                 SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
                 lv_net_price_amount = lv_str1.
 
-                lv_str1 = |\{"netpriceamount":"{ lv_net_price_amount }","netpricequantity":"{ lv_net_quantity }","itemnumber":"{ lv_item_num }"\}|.
+                lv_str1 = |\{"netpriceamount":"{ lv_net_price_amount }","netpricequantity":"{ lv_net_quantity }","itemnumber":"{ lv_item_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }"\}|.
                 CONCATENATE lv_splitted_item lv_str1 INTO lv_splitted_item.
               ELSE.
                 lv_is_end = 1.
@@ -325,14 +406,12 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
             /ui2/cl_json=>deserialize( EXPORTING json        = lv_splitted_item
                                                  pretty_name = /ui2/cl_json=>pretty_mode-none
                                        CHANGING  data        = item_table ).
-            DATA lv_amount_sum TYPE int4 VALUE 0.
-            DATA lv_quantity_sum TYPE int4 VALUE 0.
+            DATA lv_amount_sum(13)  TYPE p DECIMALS 2 VALUE 0.
+            DATA lv_quantity_sum(16) TYPE p DECIMALS 3 VALUE 0.
             LOOP AT item_table INTO DATA(ls_item_table).
               lv_amount_sum = lv_amount_sum + ls_item_table-netpriceamount * ls_item_table-netpricequantity.
               lv_quantity_sum = lv_quantity_sum + ls_item_table-netpricequantity.
             ENDLOOP.
-            lv_paid = lv_amount_sum * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
-            lv_remain = lv_amount_sum - lv_paid.
         ENDTRY.
 
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -388,6 +467,23 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
         lv_str2 = lv_current_time.
         lv_unix_time = lv_str1(10) && lv_str2+15(3).
 
+        DATA: lv_item_sum(13)             TYPE p DECIMALS 2,
+              lv_current_quantity(16)     TYPE p DECIMALS 3,
+              lv_current_quantity_brd(16) TYPE p DECIMALS 4,
+              lv_netpriceamount(13)       TYPE p DECIMALS 2.
+
+        LOOP AT item_table INTO ls_item_table.
+          IF line_exists( lt_item_qty[ purchaseorderitem = ls_item_table-itemnumber ] ).
+            lv_current_quantity_brd = ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+            IF lv_current_quantity_brd LT '0.001'.
+              lv_paid = lv_paid + ls_item_table-netpriceamount * ls_item_table-netpricequantity.
+            ELSE.
+              lv_paid = lv_paid + ls_item_table-netpriceamount * ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+              lv_remain = lv_remain + ls_item_table-netpriceamount * ls_item_table-netpricequantity * ( 100 - header_table[ 1 ]-yy1_retentionrate_pdh ) / 100.
+            ENDIF.
+          ENDIF.
+        ENDLOOP.
+
         lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
                   |          "SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
                   |          "InvoiceGrossAmount":"{ lv_remain }","PaymentTerms":"{ lv_payment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
@@ -395,21 +491,27 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
                   |,"to_SuplrInvcItemPurOrdRef": \{"results": [|.
 
         lv_counter = 0.
-        DATA lv_item_sum TYPE int4.
-        DATA lv_current_quantity(5) TYPE p DECIMALS 2.
 
         LOOP AT item_table INTO ls_item_table.
-          lv_item_sum = ls_item_table-netpricequantity * ls_item_table-netpriceamount.
-          IF lv_counter > 0.
-            CONCATENATE lv_body ',' INTO lv_body.
-          ENDIF.
-          lv_counter = lv_counter + 1.
-          lv_current_quantity = ls_item_table-netpricequantity - ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
-          lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
-                    |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ lv_item_sum - ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
-                    |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity  }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
+          IF line_exists( lt_item_qty[ purchaseorderitem = ls_item_table-itemnumber ] ).
 
-          CONCATENATE lv_body lv_str1 INTO lv_body.
+            lv_current_quantity_brd = ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+            IF lv_current_quantity_brd LT '0.001'.
+              CONTINUE.
+            ENDIF.
+
+            lv_item_sum = ls_item_table-netpricequantity * ls_item_table-netpriceamount.
+            IF lv_counter > 0.
+              CONCATENATE lv_body ',' INTO lv_body.
+            ENDIF.
+            lv_counter = lv_counter + 1.
+            lv_current_quantity = ls_item_table-netpricequantity - ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+            lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ ls_item_table-PurchaseOrderQuantityUnit }",| &
+                      |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ lv_item_sum - ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
+                      |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity  }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
+
+            CONCATENATE lv_body lv_str1 INTO lv_body.
+          ENDIF.
         ENDLOOP.
         CONCATENATE lv_body ']}}' INTO lv_body.
 
@@ -447,15 +549,27 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
         lv_counter = 0.
 
         LOOP AT item_table INTO ls_item_table.
-          IF lv_counter > 0.
-            CONCATENATE lv_body ',' INTO lv_body.
+          IF line_exists( lt_item_qty[ purchaseorderitem = ls_item_table-itemnumber ] ).
+
+            lv_current_quantity_brd = ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+            IF lv_current_quantity_brd LT '0.001'.
+              lv_current_quantity = ls_item_table-netpricequantity.
+              lv_netpriceamount = ls_item_table-netpriceamount * ls_item_table-netpricequantity.
+            ELSE.
+              lv_current_quantity = lv_current_quantity_brd.
+              lv_netpriceamount = ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
+              CLEAR: lv_current_quantity_brd.
+            ENDIF.
+
+            IF lv_counter > 0.
+              CONCATENATE lv_body ',' INTO lv_body.
+            ENDIF.
+            lv_counter = lv_counter + 1.
+            lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ ls_item_table-PurchaseOrderQuantityUnit }",| &
+                      |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ lv_netpriceamount }",| &
+                      |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
+            CONCATENATE lv_body lv_str1 INTO lv_body.
           ENDIF.
-          lv_counter = lv_counter + 1.
-          lv_current_quantity = ls_item_table-netpricequantity * header_table[ 1 ]-yy1_retentionrate_pdh / 100.
-          lv_str1 = |\{"SupplierInvoiceItem":"{ lv_counter }","PurchaseOrder":"{ gv_order_num }","PurchaseOrderQuantityUnit":"{ lv_item_quantity_unit }",| &
-                    |"PurchaseOrderItem":"{ ls_item_table-itemnumber }","SupplierInvoiceItemAmount":"{ ls_item_table-netpricequantity * ls_item_table-netpriceamount * header_table[ 1 ]-yy1_retentionrate_pdh / 100   }",| &
-                    |"QuantityInPurchaseOrderUnit": "{ lv_current_quantity }", "DocumentCurrency": "{ lv_order_currency }"\}|."]\}\}|.
-          CONCATENATE lv_body lv_str1 INTO lv_body.
         ENDLOOP.
         CONCATENATE lv_body ']}}' INTO lv_body.
 
@@ -492,6 +606,7 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
                             |Following accounting documents were created:\r\n| &
                             |Supplier Invoice: { lv_paid_num }\r\n| &
                             |Supplier Invoice with retention: { lv_remain_num } | ).
+        RETURN.
     ENDCASE.
 
   ENDMETHOD.
