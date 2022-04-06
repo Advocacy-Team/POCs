@@ -462,6 +462,7 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
           CATCH cx_parameter_invalid_range .
           CATCH cx_parameter_invalid_type .
         ENDTRY.
+
         DATA lv_unix_time TYPE string.
         lv_str1 = lv_secs.
         lv_str2 = lv_current_time.
@@ -541,9 +542,75 @@ CLASS zcl_asa_api_po IMPLEMENTATION.
         lv_str2 = lv_current_time.
         lv_unix_time = lv_str1(10) && lv_str2+15(3).
 
-        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty": "{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/",\r\n| &
-                  |  "PaymentBlockingReason":"A","SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
-                  |          "InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_zpayment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
+        """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+        """"""""""""""""""""""""""""Payment terms date""""""""""""""""""""""""""""""""""""""
+        """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+        DATA: lv_unix_time_pt  TYPE string,
+*              lv_unit_time_si(13) TYPE n,
+              lv_suppl_inv(10) TYPE c,
+              lv_suppl_year(4) TYPE c.
+
+        lv_str2 = lv_post_resp_paid.
+        REPLACE ALL OCCURRENCES OF '"' IN lv_str2 WITH ' '.
+        REPLACE ALL OCCURRENCES OF '''' IN lv_str2 WITH ' '.
+
+        SPLIT lv_str2 AT 'SupplierInvoice=' INTO lv_str1 lv_str2.
+        SPLIT lv_str2 AT ',' INTO lv_str1 lv_str3.
+        lv_suppl_inv = lv_str1.
+        SPLIT lv_str2 AT 'FiscalYear=' INTO lv_str1 lv_str2.
+        SPLIT lv_str2 AT ')' INTO lv_str1 lv_str3.
+        lv_suppl_year = lv_str1.
+
+        go_order_client_inv = cl_web_http_client_manager=>create_by_http_destination(
+          i_destination = cl_http_destination_provider=>create_by_url( gv_order_api_url_inv ) ).
+
+        lo_req_inv = go_order_client_inv->get_http_request(  ).
+
+        lo_req_inv->set_header_fields( VALUE #(
+         ( name = 'Content-Type' value = 'application/json')
+         ( name = 'Accept' value = 'application/json' )
+         ( name = 'APIKey' value = 'hwTmbcPc1KimcX4jFm96rUR3ApgHngUs' )
+         ) ).
+
+        go_order_client_inv->get_http_request( )->set_authorization_basic(
+                                             i_username = 'API_USER'
+                                             i_password = 'Welcome12345678901234567890!' ).
+
+        " Unpack input field values such as tablename, dataoption, etc.
+        ui_data_inv = request->get_form_field( `filetoupload-data` ).
+        ui_dataref_inv = /ui2/cl_json=>generate( json = ui_data_inv ).
+
+        IF ui_dataref_inv IS BOUND.
+          ASSIGN ui_dataref_inv->* TO FIELD-SYMBOL(<ui_dataref_sp>).
+          gv_order_num_inv = me->get_input_field_value( name = `TABLENAME` dataref = <ui_dataref_sp> ).
+        ENDIF.
+
+        CONCATENATE gv_order_api_url_inv `/A_SupplierInvoice(SupplierInvoice='` lv_suppl_inv `',FiscalYear='` lv_suppl_year `')` INTO lv_url_inv.
+
+        lo_req_inv->set_uri_path( i_uri_path = lv_url_inv ).
+        TRY.
+            lv_response_inv = go_order_client_inv->execute( i_method = if_web_http_client=>get )->get_text( ).
+
+          CATCH cx_web_http_client_error.
+          CATCH cx_web_message_error.
+        ENDTRY.
+
+        DATA lv_strs TYPE string.
+        CLEAR: lv_str2, lv_str1, lv_str3.
+
+        lv_strs = lv_response_inv.
+        REPLACE ALL OCCURRENCES OF '"' IN lv_strs WITH ' '.
+        REPLACE ALL OCCURRENCES OF '''' IN lv_strs WITH ' '.
+
+        SPLIT lv_strs AT 'DueCalculationBaseDate:\/Date(' INTO lv_str1 lv_strs.
+        SPLIT lv_strs AT ')' INTO lv_str1 lv_str3.
+        lv_unix_time_pt = lv_str1.
+*        lv_unit_time_si = lv_str1 + ( lv_ret_days * 86400 * 1000 ). "Convertation days into seconds.
+*        lv_unix_time_pt = lv_unit_time_si.
+
+        lv_body = |\{"CompanyCode":"{ lv_company_code }","InvoicingParty":"{ lv_order_supplier }","DocumentDate":"/Date({ lv_unix_time })/","DueCalculationBaseDate":"/Date({ lv_unix_time_pt })/",\r\n| &
+                  |"PaymentBlockingReason":"A","SupplierInvoiceStatus" : " ","PostingDate":"/Date({ lv_unix_time })/","DocumentCurrency":"{ lv_order_currency }",\r\n| &
+                  |"InvoiceGrossAmount":"{ lv_paid }","PaymentTerms":"{ lv_zpayment_term }","DocumentHeaderText":"SideBySide","SupplierInvoiceIDByInvcgParty":"{ lv_unix_time }",\r\n| &
                   |"to_SupplierInvoiceTax": \{"results": [\{"TaxCode":"I0","DocumentCurrency": "{ lv_order_currency }" \}]\}| &
                   |,"to_SuplrInvcItemPurOrdRef": \{"results": [|.
         lv_counter = 0.
